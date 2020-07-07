@@ -205,13 +205,13 @@ var customAttributes = {
     origin: 'nodejs-sample',
     username: 'gcp-1st-send'
 };
-// for(var i=0 ; i<7 ; i++){
-//     user.sendMessage('test','This is a message from GCPQueue with deleted attribute of timestamp '+i,customAttributes,20).then((value) => {
-//         console.log("message Sent !")
-//     }).catch((err) => {
-//         console.log(err);
-//     });
-// }
+for (var i = 0; i < 7; i++) {
+    user.sendMessage('test', 'This is a message from GCPQueue with deleted attribute of timestamp ' + i, customAttributes, 20).then(function (value) {
+        console.log("message Sent !");
+    })["catch"](function (err) {
+        console.log(err);
+    });
+}
 // const customAttributes = {
 //     origin: 'nodejs-sample',
 //     username: 'gcp-2nd-send',
