@@ -49,25 +49,33 @@ var GCPqueue = /** @class */ (function () {
     }
     GCPqueue.prototype.sendMessage = function (resource, body, attributes, delayInSeconds) {
         return __awaiter(this, void 0, void 0, function () {
-            var dataBuffer, processAfterDate, messageId, messageId, messageId, err_1;
+            var attri, dataBuffer, processAfterDate, messageId, messageId, messageId, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 7, , 8]);
+                        attri = {};
+                        if (attributes) {
+                            attri = Array.from(customAttributes).reduce(function (attri, _a) {
+                                var _b;
+                                var key = _a[0], value = _a[1];
+                                return (Object.assign(attri, (_b = {}, _b[key] = value, _b)));
+                            }, {});
+                        }
                         body = JSON.stringify(body);
                         dataBuffer = Buffer.from(body);
                         processAfterDate = 0;
                         if (!delayInSeconds) return [3 /*break*/, 2];
                         processAfterDate = new Date().getTime() + delayInSeconds * 1000;
-                        attributes['timestamp'] = JSON.stringify(processAfterDate);
-                        console.log(attributes);
-                        return [4 /*yield*/, this.pubsub.topic(resource).publish(dataBuffer, attributes)];
+                        attri['timestamp'] = JSON.stringify(processAfterDate);
+                        console.log(attri);
+                        return [4 /*yield*/, this.pubsub.topic(resource).publish(dataBuffer, attri)];
                     case 1:
                         messageId = _a.sent();
                         return [3 /*break*/, 6];
                     case 2:
                         if (!attributes) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.pubsub.topic(resource).publish(dataBuffer, attributes)];
+                        return [4 /*yield*/, this.pubsub.topic(resource).publish(dataBuffer, attri)];
                     case 3:
                         messageId = _a.sent();
                         console.log(attributes);
@@ -201,17 +209,16 @@ var GCPqueue = /** @class */ (function () {
 }());
 exports.GCPqueue = GCPqueue;
 var user = new GCPqueue();
-var customAttributes = {
-    origin: 'nodejs-sample',
-    username: 'gcp-1st-send'
-};
-for (var i = 0; i < 7; i++) {
-    user.sendMessage('test', 'This is a message from GCPQueue with deleted attribute of timestamp ' + i, customAttributes, 20).then(function (value) {
-        console.log("message Sent !");
-    })["catch"](function (err) {
-        console.log(err);
-    });
-}
+var customAttributes = new Map();
+customAttributes.set('origin', 'nodejs-sample');
+customAttributes.set('username', 'gcp-1st-send');
+// for(var i=0 ; i<7 ; i++){
+//     user.sendMessage('test','This is a message from GCPQueue with deleted attribute of timestamp '+i,customAttributes,2).then((value) => {
+//         console.log("message Sent !")
+//     }).catch((err) => {
+//         console.log(err);
+//     });
+// }
 // const customAttributes = {
 //     origin: 'nodejs-sample',
 //     username: 'gcp-2nd-send',

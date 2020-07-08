@@ -21,19 +21,27 @@ export class GCPqueue implements IQueueService{
         this.subClient = new v1.SubscriberClient();
     }
     
-    public async sendMessage(resource: string, body: any, attributes?: {}, delayInSeconds?: number): Promise<boolean>{
+    public async sendMessage(resource: string, body: any, attributes?: Map<string,any>, delayInSeconds?: number): Promise<boolean>{
         try{
+            let attri = {}
+
+            if(attributes){
+                attri = Array.from(customAttributes).reduce((attri, [key, value]) => (
+                    Object.assign(attri, { [key]: value })
+                ), {});
+            }
+
             body = JSON.stringify(body);
             const dataBuffer = Buffer.from(body);
             var processAfterDate = 0
             if(delayInSeconds){
                 processAfterDate = new Date().getTime() + delayInSeconds*1000
-                attributes['timestamp'] = JSON.stringify(processAfterDate)
-                console.log(attributes)
-                const messageId = await this.pubsub.topic(resource).publish(dataBuffer,attributes)
+                attri['timestamp'] = JSON.stringify(processAfterDate)
+                console.log(attri)
+                const messageId = await this.pubsub.topic(resource).publish(dataBuffer,attri)
             }else{
                 if(attributes){
-                    const messageId = await this.pubsub.topic(resource).publish(dataBuffer,attributes)
+                    const messageId = await this.pubsub.topic(resource).publish(dataBuffer,attri)
                     console.log(attributes)
                 }else{
                     const messageId = await this.pubsub.topic(resource).publish(dataBuffer)
@@ -141,18 +149,17 @@ export class GCPqueue implements IQueueService{
 
 const user = new GCPqueue();
 
-const customAttributes = {
-    origin: 'nodejs-sample',
-    username: 'gcp-1st-send',
-};
+const customAttributes = new Map();
+customAttributes.set('origin','nodejs-sample');
+customAttributes.set('username','gcp-1st-send');
 
-for(var i=0 ; i<7 ; i++){
-    user.sendMessage('test','This is a message from GCPQueue with deleted attribute of timestamp '+i,customAttributes,20).then((value) => {
-        console.log("message Sent !")
-    }).catch((err) => {
-        console.log(err);
-    });
-}
+// for(var i=0 ; i<7 ; i++){
+//     user.sendMessage('test','This is a message from GCPQueue with deleted attribute of timestamp '+i,customAttributes,2).then((value) => {
+//         console.log("message Sent !")
+//     }).catch((err) => {
+//         console.log(err);
+//     });
+// }
 
 // const customAttributes = {
 //     origin: 'nodejs-sample',
